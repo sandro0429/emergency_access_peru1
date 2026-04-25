@@ -2,23 +2,28 @@
 utils.py — Helper functions for the emergency access analysis.
 """
 import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
 
-def ensure_dir(path: str) -> str:
+BASE_DIR = Path(__file__).resolve().parent.parent
+RAW_DIR = BASE_DIR / "data" / "raw"
+PROCESSED_DIR = BASE_DIR / "data" / "processed"
+OUTPUT_DIR = BASE_DIR / "output"
+FIGURES_DIR = OUTPUT_DIR / "figures"
+TABLES_DIR = OUTPUT_DIR / "tables"
+
+
+def ensure_dir(path: str | Path) -> str:
     """Create directory if it doesn't exist and return the path."""
     os.makedirs(path, exist_ok=True)
-    return path
+    return str(path)
 
 
 def pad_ubigeo(series: pd.Series) -> pd.Series:
     """
     Standardize UBIGEO codes to 6-digit zero-padded strings.
-    
-    Peruvian UBIGEO codes are 6 digits: DDPPDD (Dept-Prov-Dist).
-    Some sources store them as integers, dropping leading zeros
-    (e.g., 60101 instead of 060101 for Cajamarca).
     """
     return series.astype(str).str.strip().str.zfill(6)
 
@@ -26,13 +31,14 @@ def pad_ubigeo(series: pd.Series) -> pd.Series:
 def normalize_text(series: pd.Series) -> pd.Series:
     """Normalize text columns: uppercase, strip whitespace, remove accents."""
     import unicodedata
+
     def _clean(text):
         if pd.isna(text):
             return text
         text = str(text).strip().upper()
-        # Remove accents
-        nfkd = unicodedata.normalize('NFKD', text)
-        return ''.join(c for c in nfkd if not unicodedata.combining(c))
+        nfkd = unicodedata.normalize("NFKD", text)
+        return "".join(c for c in nfkd if not unicodedata.combining(c))
+
     return series.apply(_clean)
 
 
