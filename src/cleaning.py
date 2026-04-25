@@ -9,7 +9,6 @@ Cleaning decisions documented here:
     5. Duplicates: remove exact duplicates in each dataset.
     6. Column renaming: standardize to snake_case for consistency.
 """
-print("SE ABRIO cleaning.py")
 
 from pathlib import Path
 import geopandas as gpd
